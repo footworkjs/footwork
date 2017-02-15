@@ -28,7 +28,7 @@ require('./binding/start');
 
 module.exports = fw;
 
-},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":9,"./broadcastable-receivable/broadcastable":10,"./broadcastable-receivable/receivable":11,"./collection/collection":13,"./component/component":17,"./entities/entities":23,"./namespace/namespace":44,"knockout/build/output/knockout-latest":3}],2:[function(require,module,exports){
+},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":9,"./broadcastable-receivable/broadcastable":10,"./broadcastable-receivable/receivable":11,"./collection/collection":13,"./component/component":17,"./entities/entities":23,"./namespace/namespace":45,"knockout/build/output/knockout-latest":3}],2:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -6612,7 +6612,7 @@ module.exports = {
   addToAndFetchQueue: addToAndFetchQueue
 };
 
-},{"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],5:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],5:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -6650,7 +6650,7 @@ function wrapWithLifeCycle (rootNode) {
   return rootNode;
 }
 
-},{"../binding/binding-element":6,"../entities/entity-tools":26,"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],6:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-tools":26,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],6:[function(require,module,exports){
 var oldExploderVersion = 8;
 var bindingElement = {
   oldExploderTagName: 'div',
@@ -6715,6 +6715,25 @@ fw.bindingHandlers.$lifecycle = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentNode;
 
+    /**
+     * If this is a loaded display component of an outlet then we have to make sure the loadingTracker was given to the outlet.
+     * The component binding init is not fired for these (necessarily).
+     */
+    if (hasClass(element, outletLoadedDisplay)) {
+      var closestOutlet = nearestEntity(bindingContext, fw.isOutlet);
+      var loadingTracker = element[util.getSymbol('loadingTracker')];
+
+      if (closestOutlet && closestOutlet[privateDataSymbol].loadingChildren.indexOf(loadingTracker) === -1) {
+        closestOutlet[privateDataSymbol].loadingChildren.push(loadingTracker);
+
+        // ensure that if the element is removed before its other resources are resolved that the loadingTracker is removed/cleared
+        /* istanbul ignore next */
+        fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+          closestOutlet[privateDataSymbol].loadingChildren.remove(loadingTracker);
+        });
+      }
+    }
+
     // if this is a router and its configured to do so, activate it now that its being bound
     if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
       viewModel.activated(true);
@@ -6757,7 +6776,7 @@ fw.bindingHandlers.$lifecycle = {
           if (nearestOutlet) {
             // the parent outlet will run the callback that initiates the animation
             // sequence (once the rest of its dependencies finish loading as well)
-            nearestOutlet.addResolvedCallbackOrExecute(function () {
+            nearestOutlet[privateDataSymbol].addResolvedCallbackOrExecute(function () {
               runAnimationSequenceQueue(queue);
             });
           } else {
@@ -6846,7 +6865,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
   }
 }
 
-},{"../entities/entity-tools":26,"../entities/router/router-config":34,"../misc/ajax":41,"../misc/util":42,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
+},{"../entities/entity-tools":26,"../entities/router/router-config":35,"../misc/ajax":42,"../misc/util":43,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
 /**
  * Registry which stores component information as it is loaded.
  * This information is used by footwork to bootstrap the component/entity.
@@ -6931,7 +6950,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   return target.broadcast();
 };
 
-},{"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],11:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],11:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -6990,7 +7009,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   return receivable.refresh();
 };
 
-},{"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],12:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],12:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7093,7 +7112,7 @@ module.exports = {
   where: where
 };
 
-},{"../misc/ajax":41,"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
+},{"../misc/ajax":42,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7146,7 +7165,7 @@ fw.collection = function createCollection (configParamsOrData) {
   return collection;
 };
 
-},{"../misc/util":42,"./collection-methods":12,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],14:[function(require,module,exports){
+},{"../misc/util":43,"./collection-methods":12,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],14:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7204,7 +7223,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
 
 fw.bindingHandlers.component.init = componentBindingInit;
 
-},{"../binding/loading-tracker":8,"../entities/entity-descriptors":24,"../entities/entity-tools":26,"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],15:[function(require,module,exports){
+},{"../binding/loading-tracker":8,"../entities/entity-descriptors":24,"../entities/entity-tools":26,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],15:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7321,7 +7340,7 @@ function wrapWithLifeCycle (template) {
   return [].concat(wrapper[0], template, wrapper[1]);
 }
 
-},{"../binding/binding-element":6,"../entities/entity-descriptors":24,"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],16:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-descriptors":24,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],16:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7392,7 +7411,7 @@ fw.components.loaders.push(fw.components.locationLoader = {
   }
 });
 
-},{"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],17:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],17:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7553,7 +7572,7 @@ module.exports = {
   evalDirtyState: evalDirtyState
 };
 
-},{"../../misc/util":42,"footwork-lodash":2}],19:[function(require,module,exports){
+},{"../../misc/util":43,"footwork-lodash":2}],19:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7624,7 +7643,7 @@ function dataModelBootstrap (instance, configParams) {
 
 module.exports = dataModelBootstrap;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../viewModel/viewModel-bootstrap":38,"./data-tools":18,"./dataModel-methods":20,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],20:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../viewModel/viewModel-bootstrap":39,"./data-tools":18,"./dataModel-methods":20,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],20:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7885,7 +7904,7 @@ module.exports = {
 
 
 
-},{"../../misc/ajax":41,"../../misc/util":42,"./data-tools":18,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
+},{"../../misc/ajax":42,"../../misc/util":43,"./data-tools":18,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7925,7 +7944,7 @@ require('../entity-descriptors').push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"./dataModel-bootstrap":19,"./map":22,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],22:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../resource-tools":32,"./dataModel-bootstrap":19,"./map":22,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],22:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7986,7 +8005,7 @@ function map (mapPath, dataModel) {
 
 fw.subscribable.fn.map = map;
 
-},{"../../misc/util":42,"./data-tools":18,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
+},{"../../misc/util":43,"./data-tools":18,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
 /**
  * This loader wraps the elements with the $lifecycle as well as sources the viewModel/router/dataModel
  */
@@ -8000,7 +8019,7 @@ require('./dataModel/dataModel');
 require('./router/router');
 require('./outlet/outlet');
 
-},{"./dataModel/dataModel":21,"./entity-loader":25,"./outlet/outlet":30,"./router/router":37,"./viewModel/viewModel":40}],24:[function(require,module,exports){
+},{"./dataModel/dataModel":21,"./entity-loader":25,"./outlet/outlet":31,"./router/router":38,"./viewModel/viewModel":41}],24:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 module.exports = _.extend([
@@ -8066,7 +8085,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
   }
 });
 
-},{"../binding/binding-element":6,"../binding/loading-tracker":8,"../misc/util":42,"./entity-descriptors":24,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],26:[function(require,module,exports){
+},{"../binding/binding-element":6,"../binding/loading-tracker":8,"../misc/util":43,"./entity-descriptors":24,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],26:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8129,7 +8148,7 @@ module.exports = {
   nearestEntity: nearestEntity
 };
 
-},{"../misc/util":42,"./entity-descriptors":24,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],27:[function(require,module,exports){
+},{"../misc/util":43,"./entity-descriptors":24,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],27:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8149,15 +8168,15 @@ fw.bindingHandlers.$outlet = {
       element = element.parentNode;
       var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
 
-      outletViewModel.originalDisplay = '$outlet-' + outletName;
-      fw.components.register(outletViewModel.originalDisplay, {
+      outletViewModel[privateDataSymbol].originalDisplay = '$outlet-' + outletName;
+      fw.components.register(outletViewModel[privateDataSymbol].originalDisplay, {
         template: valueAccessor()
       });
 
       // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
-        fw.components.unregister(outletViewModel.originalDisplay);
+        fw.components.unregister(outletViewModel[privateDataSymbol].originalDisplay);
         parentRouter[privateDataSymbol].unregisterOutlet(outletName);
       });
 
@@ -8169,34 +8188,21 @@ fw.bindingHandlers.$outlet = {
   }
 };
 
-},{"../../misc/util":42,"../router/router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],28:[function(require,module,exports){
+},{"../../misc/util":43,"../router/router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],28:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
-var util = require('../../misc/util');
-var nextFrame = util.nextFrame;
-var privateDataSymbol = util.getSymbol('footwork');
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var noComponentSelected = require('../router/router-config').noComponentSelected;
 
-var routerConfig = require('../router/router-config');
-var noComponentSelected = routerConfig.noComponentSelected;
-
-var visibleCSS = { 'height': '', 'overflow': '' };
-var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
-
-function addAnimation () {
-  var addAnimation = {};
-  addAnimation[fw.animationClass.animateIn] = true;
-  return addAnimation;
-}
-
-function removeAnimation () {
-  var removeAnimation = {};
-  removeAnimation[fw.animationClass.animateIn] = false;
-  return removeAnimation;
-}
+var outletTools = require('./outlet-tools');
+var visibleCSS = outletTools.visibleCSS;
+var hiddenCSS = outletTools.hiddenCSS;
+var addAnimation = outletTools.addAnimation;
+var removeAnimation = outletTools.removeAnimation;
 
 /**
  * Bootstrap an instance with outlet capabilities.
@@ -8213,13 +8219,10 @@ function outletBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
+    var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
-    var resolvedCallbacks = [];
-    _.extend(instance, {
-      loading: fw.observable(noComponentSelected),
-      routeIsLoading: fw.observable(true),
-      routeIsResolving: fw.observable(true),
+    _.extend(privateData, {
       addResolvedCallbackOrExecute: function (callback) {
         /* istanbul ignore else */
         if (instance.routeIsResolving()) {
@@ -8230,18 +8233,12 @@ function outletBootstrap (instance, configParams) {
       }
     });
 
-    function showLoader () {
-      var removeAnim = removeAnimation();
-
-      instance.loadingClass(removeAnim);
-      instance.loadedClass(removeAnim);
-      instance.loadedStyle(hiddenCSS);
-      instance.loadingStyle(visibleCSS);
-
-      nextFrame(function () {
-        instance.loadingClass(addAnimation());
-      });
-    }
+    var resolvedCallbacks = [];
+    _.extend(instance, {
+      loading: fw.observable(noComponentSelected),
+      routeIsLoading: fw.observable(true),
+      routeIsResolving: fw.observable(true)
+    });
 
     function showLoadedAfterMinimumTransition () {
       instance.loadingClass(removeAnimation());
@@ -8256,62 +8253,72 @@ function outletBootstrap (instance, configParams) {
         resolvedCallbacks = [];
       }
 
-      instance.routeOnComplete();
+      privateData.routeOnComplete();
     }
 
     var transitionTriggerTimeout;
-    function showLoaded () {
-      clearTimeout(transitionTriggerTimeout);
-      var transition = instance.display.peek().transition;
-      if (transition) {
-        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
-      } else {
-        showLoadedAfterMinimumTransition();
-      }
-    }
 
     _.extend(instance, {
       loadingStyle: fw.observable(),
       loadedStyle: fw.observable(),
       loadingClass: fw.observable(),
       loadedClass: fw.observable(),
-      showLoader: showLoader,
-      showLoaded: showLoaded
-    });
+      showLoader: function showLoader () {
+        var removeAnim = removeAnimation();
 
-    instance.transitionTrigger = fw.computed(function () {
-      var routeIsResolving = instance.routeIsResolving();
-      if (routeIsResolving) {
-        showLoader();
-      } else {
-        showLoaded();
-      }
-    });
+        instance.loadingClass(removeAnim);
+        instance.loadedClass(removeAnim);
+        instance.loadedStyle(hiddenCSS);
+        instance.loadingStyle(visibleCSS);
 
-    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
-      if (routeIsLoading) {
-        instance.routeIsResolving(true);
-      } else {
-        /* istanbul ignore next */
-        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
-          instance.loadingChildrenWatch.dispose();
+        setTimeout(function () {
+          instance.loadingClass(addAnimation());
+        }, 0);
+      },
+      showLoaded: function showLoaded () {
+        clearTimeout(transitionTriggerTimeout);
+        var transition = instance.display.peek().transition;
+        if (transition) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
+        } else {
+          showLoadedAfterMinimumTransition();
         }
-
-        // must allow binding to begin on any subcomponents/etc
-        nextFrame(function () {
-          if (instance[privateDataSymbol].loadingChildren().length) {
-            /* istanbul ignore next */
-            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
-              if (!loadingChildren.length) {
-                instance.routeIsResolving(false);
-              }
-            });
-          } else {
-            instance.routeIsResolving(false);
-          }
-        });
       }
-    }));
+    });
+
+    instance.disposeWithInstance(
+      instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
+        if (routeIsLoading) {
+          instance.routeIsResolving(true);
+        } else {
+          /* istanbul ignore next */
+          if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
+            privateData.loadingChildrenWatch.dispose();
+          }
+
+          // must allow binding to begin on any subcomponents/etc
+          setTimeout(function () {
+            if (privateData.loadingChildren().length) {
+              /* istanbul ignore next */
+              privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+                if (!loadingChildren.length) {
+                  instance.routeIsResolving(false);
+                }
+              });
+            } else {
+              instance.routeIsResolving(false);
+            }
+          }, 0);
+        }
+      }),
+      instance.routeIsResolving.subscribe(function transitionTrigger (routeIsResolving) {
+        if (routeIsResolving) {
+          instance.showLoader();
+        } else {
+          instance.showLoaded();
+        }
+      })
+    );
   }
 
   return instance;
@@ -8319,13 +8326,18 @@ function outletBootstrap (instance, configParams) {
 
 module.exports = outletBootstrap;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../router/router-config":34,"../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],29:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../router/router-config":35,"../viewModel/viewModel-bootstrap":39,"./outlet-tools":30,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],29:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
 var outletBootstrap = require('./outlet-bootstrap');
+
+var outletTools = require('./outlet-tools');
+var stringifyCSS = outletTools.stringifyCSS;
+var visibleCSS = outletTools.visibleCSS;
+var hiddenCSS = outletTools.hiddenCSS;
 
 var outletCount = 0;
 
@@ -8344,9 +8356,9 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
           });
         },
         template: bindingElement.open.prefix + '$lifecycle, $outlet: $componentTemplateNodes' + bindingElement.open.postfix +
-          '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
+          '<div style="' + stringifyCSS(visibleCSS) + '" class="' + routerConfig.outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
-          '<div class="' + routerConfig.outletLoadedDisplay + '" ' +
+          '<div style="' + stringifyCSS(hiddenCSS) + '" class="' + routerConfig.outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true
@@ -8357,7 +8369,42 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   }
 });
 
-},{"../../binding/binding-element":6,"../router/router-config":34,"./outlet-bootstrap":28,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
+},{"../../binding/binding-element":6,"../router/router-config":35,"./outlet-bootstrap":28,"./outlet-tools":30,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('footwork-lodash');
+
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+
+function addAnimation () {
+  var addAnimation = {};
+  addAnimation[fw.animationClass.animateIn] = true;
+  return addAnimation;
+}
+
+function removeAnimation () {
+  var removeAnimation = {};
+  removeAnimation[fw.animationClass.animateIn] = false;
+  return removeAnimation;
+}
+
+module.exports = {
+  addAnimation: addAnimation,
+  removeAnimation: removeAnimation,
+  visibleCSS: visibleCSS,
+  hiddenCSS: hiddenCSS,
+  stringifyCSS: function (cssConfig) {
+    return _.reduce(cssConfig, function (cssString, cssProperty, cssField) {
+      if (cssString) {
+        cssString += '; ';
+      }
+      cssString += cssField + ': ' + cssProperty;
+      return cssString;
+    }, '');
+  }
+};
+
+},{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8380,7 +8427,6 @@ var descriptor = {
   referenceNamespace: getSymbol(entityName)
 };
 
-require('../resource-tools')(descriptor, ['get']);
 require('../entity-descriptors').push(descriptor);
 
 fw.components.register(require('../router/router-config').noComponentSelected, {
@@ -8391,7 +8437,7 @@ fw.components.register(require('../router/router-config').noComponentSelected, {
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"../router/router-config":34,"./outlet-binding":27,"./outlet-loader":29,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../router/router-config":35,"./outlet-binding":27,"./outlet-loader":29,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],32:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8502,7 +8548,7 @@ function getResourceOrLocation (descriptor, moduleName) {
  * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
  * @returns
  */
-function resourceTools (descriptor, included) {
+function resourceTools (descriptor) {
   var methods = {
     getFileName: _.partial(getFileName, descriptor),
     register: _.partial(register, descriptor),
@@ -8514,14 +8560,14 @@ function resourceTools (descriptor, included) {
     get: _.partial(getModelReferences, descriptor)
   };
 
-  _.extend(descriptor.resource, included ? _.pick(methods, included) : methods);
+  _.extend(descriptor.resource, methods);
 
   return descriptor;
 }
 
 module.exports = resourceTools;
 
-},{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],32:[function(require,module,exports){
+},{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8634,7 +8680,7 @@ fw.bindingHandlers.route = {
   }
 };
 
-},{"../../misc/util":42,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
+},{"../../misc/util":43,"./router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],34:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8682,7 +8728,8 @@ function routerBootstrap (instance, configParams) {
       currentState: fw.observable(),
       currentRoute: fw.observable(),
       activated: fw.observable(false),
-      routes: fw.observableArray(privateData.configParams.routes)
+      routes: fw.observableArray(privateData.configParams.routes),
+      outlets: fw.observable({})
     });
 
     instance.disposeWithInstance(
@@ -8761,14 +8808,14 @@ function routerBootstrap (instance, configParams) {
 
 module.exports = routerBootstrap;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../viewModel/viewModel-bootstrap":38,"./router-methods":35,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],34:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../viewModel/viewModel-bootstrap":39,"./router-methods":36,"./router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],35:[function(require,module,exports){
 module.exports = {
   noComponentSelected: '_noComponentSelected',
   outletLoadingDisplay: 'fw-loading-display',
   outletLoadedDisplay: 'fw-loaded-display'
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
@@ -8821,10 +8868,10 @@ module.exports = {
       // grab and set the loading display if needed
       if (arguments.length > 1) {
         // user requested change, lets find out and inject what we need to display during load
-        outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
+        outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel[privateDataSymbol].originalDisplay);
       } else {
         // bootup process, just show original contents during startup
-        outletViewModel.loading(outletViewModel.originalDisplay);
+        outletViewModel.loading(outletViewModel[privateDataSymbol].originalDisplay);
       }
     }
 
@@ -8860,7 +8907,7 @@ module.exports = {
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
-            outletViewModel.routeOnComplete = function () {
+            outletViewModel[privateDataSymbol].routeOnComplete = function () {
               router[privateDataSymbol].scrollToFragment();
               [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
                 (onComplete || _.noop).call(router, outletElement);
@@ -8932,7 +8979,7 @@ module.exports = {
 
 
 
-},{"../../binding/animation-sequencing":4,"../../misc/util":42,"../entity-tools":26,"../viewModel/viewModel-methods":39,"./router-config":34,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],36:[function(require,module,exports){
+},{"../../binding/animation-sequencing":4,"../../misc/util":43,"../entity-tools":26,"../viewModel/viewModel-methods":40,"./router-config":35,"./router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8985,6 +9032,11 @@ function nearestParentRouter ($context) {
 function registerOutlet (router, outletName, outletViewModel) {
   var outletProperties = router[privateDataSymbol].outlets[outletName] = router[privateDataSymbol].outlets[outletName] || {};
   outletProperties.outletViewModel = outletViewModel;
+
+  // register the outletViewModel in a place the user can access it if needed
+  var outlets = router.outlets();
+  outlets[outletName] = outletViewModel;
+  router.outlets.notifySubscribers();
 }
 
 /**
@@ -8995,6 +9047,11 @@ function registerOutlet (router, outletName, outletViewModel) {
  */
 function unregisterOutlet (router, outletName) {
   delete router[privateDataSymbol].outlets[outletName];
+
+  // remove the outletViewModel user accessible registration
+  var outlets = router.outlets();
+  delete outlets[outletName];
+  router.outlets.notifySubscribers();
 }
 
 /**
@@ -9092,7 +9149,7 @@ module.exports = {
   stripQueryStringAndFragment: stripQueryStringAndFragment
 };
 
-},{"../../misc/util":42,"../entity-tools":26,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-tools":26,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9135,7 +9192,7 @@ require('../entity-descriptors').push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"./route-binding":32,"./router-bootstrap":33,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../resource-tools":32,"./route-binding":33,"./router-bootstrap":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9201,7 +9258,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
 module.exports = viewModelBootstrap;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"./viewModel-methods":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"./viewModel-methods":40,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],40:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var util = require('../../misc/util');
@@ -9245,7 +9302,7 @@ module.exports = {
 
 
 
-},{"../../misc/util":42,"footwork-lodash":2}],40:[function(require,module,exports){
+},{"../../misc/util":43,"footwork-lodash":2}],41:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9288,7 +9345,7 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
 
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"./viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],41:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":24,"../resource-tools":32,"./viewModel-bootstrap":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],42:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9491,7 +9548,7 @@ module.exports = {
   makePromiseQueryable: makePromiseQueryable
 }
 
-},{"./util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],42:[function(require,module,exports){
+},{"./util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],43:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9589,15 +9646,6 @@ function removeClass (element, className) {
     element.className = element.className.replace(classNameRegex, ' ');
   }
 }
-
-/**
- * Call the supplied callback after the minimum transition time (the next frame).
- *
- * @param {any} callback
- */
-function nextFrame (callback) {
-  setTimeout(callback, 1000 / 30);
-};
 
 var trailingSlashRegex = /\/$/;
 
@@ -9726,7 +9774,6 @@ module.exports = {
   isNode: isNode,
   isEvent: isEvent,
   removeClass: removeClass,
-  nextFrame: nextFrame,
   isPath: isPath,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
@@ -9737,7 +9784,7 @@ module.exports = {
   makeArray: makeArray
 };
 
-},{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],43:[function(require,module,exports){
+},{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],44:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
@@ -9859,7 +9906,7 @@ module.exports = {
   getName: getName
 };
 
-},{"../misc/util":42,"footwork-lodash":2}],44:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2}],45:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9896,5 +9943,5 @@ fw.isNamespace = function (thing) {
   return thing instanceof fw.namespace;
 };
 
-},{"../misc/util":42,"./namespace-methods":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}]},{},[1])(1)
+},{"../misc/util":43,"./namespace-methods":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}]},{},[1])(1)
 });

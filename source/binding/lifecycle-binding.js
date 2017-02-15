@@ -33,7 +33,7 @@ fw.bindingHandlers.$lifecycle = {
 
     /**
      * If this is a loaded display component of an outlet then we have to make sure the loadingTracker was given to the outlet.
-     * The component binding init is not fired for these.
+     * The component binding init is not fired for these (necessarily).
      */
     if (hasClass(element, outletLoadedDisplay)) {
       var closestOutlet = nearestEntity(bindingContext, fw.isOutlet);
