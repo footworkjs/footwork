@@ -36,8 +36,7 @@ module.exports = {
       outlet = fw.observable({
         name: noComponentSelected,
         params: {},
-        getOnCompleteCallback: function () { return _.noop; },
-        loading: options.loading || routerOutletOptions.loading
+        getOnCompleteCallback: function () { return _.noop; }
       });
 
       // register the new outlet under its outletName

@@ -14,13 +14,13 @@ fw.bindingHandlers.$outlet = {
 
     /* istanbul ignore else */
     if (fw.isRouter(parentRouter)) {
-      outletViewModel.originalDisplay = outletViewModel.$namespace.getName();
+      element = element.parentNode;
+      var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
+
+      outletViewModel.originalDisplay = '$outlet-' + outletName;
       fw.components.register(outletViewModel.originalDisplay, {
         template: valueAccessor()
       });
-
-      element = element.parentNode;
-      var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
 
       // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
