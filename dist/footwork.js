@@ -8146,13 +8146,13 @@ fw.bindingHandlers.$outlet = {
 
     /* istanbul ignore else */
     if (fw.isRouter(parentRouter)) {
-      outletViewModel.originalDisplay = outletViewModel.$namespace.getName();
+      element = element.parentNode;
+      var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
+
+      outletViewModel.originalDisplay = '$outlet-' + outletName;
       fw.components.register(outletViewModel.originalDisplay, {
         template: valueAccessor()
       });
-
-      element = element.parentNode;
-      var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
 
       // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
@@ -8255,6 +8255,8 @@ function outletBootstrap (instance, configParams) {
         });
         resolvedCallbacks = [];
       }
+
+      instance.routeOnComplete();
     }
 
     var transitionTriggerTimeout;
@@ -8302,12 +8304,10 @@ function outletBootstrap (instance, configParams) {
             instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
               if (!loadingChildren.length) {
                 instance.routeIsResolving(false);
-                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
               }
             });
           } else {
             instance.routeIsResolving(false);
-            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
           }
         });
       }
@@ -8731,6 +8731,7 @@ function routerBootstrap (instance, configParams) {
           privateData.scrollToFragment = _.noop;
           if (_.isString(state) && state.indexOf('#') !== -1) {
             var fragmentIdentifier = state.split('#')[1];
+            /* istanbul ignore next */
             privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
@@ -8806,8 +8807,7 @@ module.exports = {
       outlet = fw.observable({
         name: noComponentSelected,
         params: {},
-        getOnCompleteCallback: function () { return _.noop; },
-        loading: options.loading || routerOutletOptions.loading
+        getOnCompleteCallback: function () { return _.noop; }
       });
 
       // register the new outlet under its outletName
@@ -8817,9 +8817,15 @@ module.exports = {
       };
     }
 
-    // grab and set the loading display if needed
     if (outletViewModel) {
-      outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
+      // grab and set the loading display if needed
+      if (arguments.length > 1) {
+        // user requested change, lets find out and inject what we need to display during load
+        outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
+      } else {
+        // bootup process, just show original contents during startup
+        outletViewModel.loading(outletViewModel.originalDisplay);
+      }
     }
 
     var outletHasMutated = false;
@@ -8836,13 +8842,14 @@ module.exports = {
       }
 
       if (outletHasMutated) {
-        clearSequenceQueue();
-
-        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
         }
+
+        clearSequenceQueue();
+
+        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
 
         currentOutletDef.getOnCompleteCallback = function (element) {
           var outletElement = element.parentNode;
