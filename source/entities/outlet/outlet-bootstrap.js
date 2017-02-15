@@ -29,15 +29,30 @@ function outletBootstrap (instance, configParams) {
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     var privateData = instance[privateDataSymbol];
+    var transitionTriggerTimeout;
+    var transitionCompleted = fw.observable(false);
+    var readyToShowLoaded = fw.observable(false);
+
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
     _.extend(privateData, {
-      addResolvedCallbackOrExecute: function (callback) {
+      addResolvedCallbackOrExecute: function addResolvedCallbackOrExecute (callback) {
         /* istanbul ignore else */
         if (instance.routeIsResolving()) {
           resolvedCallbacks.push(callback);
         } else {
           callback();
+        }
+      },
+      setupTransitionTrigger: function setupTransitionTrigger () {
+        var transition = instance.display().transition;
+        if (transition) {
+          clearTimeout(transitionTriggerTimeout);
+          transitionTriggerTimeout = setTimeout(function () {
+            transitionCompleted(true);
+          }, transition);
+        } else {
+          transitionCompleted(true);
         }
       }
     });
@@ -49,7 +64,7 @@ function outletBootstrap (instance, configParams) {
       routeIsResolving: fw.observable(true)
     });
 
-    function showLoadedAfterMinimumTransition () {
+    function showLoadedNow () {
       instance.loadingClass(removeAnimation());
       instance.loadedStyle(visibleCSS);
       instance.loadingStyle(hiddenCSS);
@@ -65,8 +80,6 @@ function outletBootstrap (instance, configParams) {
       privateData.routeOnComplete();
     }
 
-    var transitionTriggerTimeout;
-
     _.extend(instance, {
       loadingStyle: fw.observable(),
       loadedStyle: fw.observable(),
@@ -80,23 +93,28 @@ function outletBootstrap (instance, configParams) {
         instance.loadedStyle(hiddenCSS);
         instance.loadingStyle(visibleCSS);
 
+        transitionCompleted(false);
+        readyToShowLoaded(false);
+
+        privateData.setupTransitionTrigger();
         setTimeout(function () {
           instance.loadingClass(addAnimation());
         }, 0);
       },
       showLoaded: function showLoaded () {
-        clearTimeout(transitionTriggerTimeout);
-        var transition = instance.display.peek().transition;
-        if (transition) {
-          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
-        } else {
-          showLoadedAfterMinimumTransition();
-        }
+        readyToShowLoaded(true);
       }
     });
 
     instance.disposeWithInstance(
-      instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
+      fw.computed(function () {
+        var ready = readyToShowLoaded();
+        var transitioned = transitionCompleted();
+        if (transitioned && ready) {
+          showLoadedNow();
+        }
+      }),
+      instance.routeIsLoading.subscribe(function routeLoadingTrigger (routeIsLoading) {
         if (routeIsLoading) {
           instance.routeIsResolving(true);
         } else {

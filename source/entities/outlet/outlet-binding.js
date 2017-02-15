@@ -31,6 +31,7 @@ fw.bindingHandlers.$outlet = {
 
       // attach the observable from the parentRouter that contains the component binding definition to display for this outlet
       outletViewModel.display = parentRouter.outlet(outletName);
+      outletViewModel[privateDataSymbol].setupTransitionTrigger(); // initial wiring requires manual setup of transition trigger (outlet changes typically trigger it)
     } else {
       throw Error('Outlet \"' + outletName + '\" declared but no parent router was found.');
     }
