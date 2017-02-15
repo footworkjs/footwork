@@ -31,6 +31,24 @@ fw.bindingHandlers.$lifecycle = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentNode;
 
+    /**
+     * If this is a loaded display component of an outlet then we have to make sure the loadingTracker was given to the outlet.
+     * The component binding init is not fired for these.
+     */
+    if (hasClass(element, outletLoadedDisplay)) {
+      var closestOutlet = nearestEntity(bindingContext, fw.isOutlet);
+      var loadingTracker = element[util.getSymbol('loadingTracker')];
+
+      if (closestOutlet && closestOutlet[privateDataSymbol].loadingChildren.indexOf(loadingTracker) === -1) {
+        closestOutlet[privateDataSymbol].loadingChildren.push(loadingTracker);
+
+        // ensure that if the element is removed before its other resources are resolved that the loadingTracker is removed/cleared
+        fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+          closestOutlet[privateDataSymbol].loadingChildren.remove(loadingTracker);
+        });
+      }
+    }
+
     // if this is a router and its configured to do so, activate it now that its being bound
     if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
       viewModel.activated(true);

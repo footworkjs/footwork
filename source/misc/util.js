@@ -96,15 +96,6 @@ function removeClass (element, className) {
   }
 }
 
-/**
- * Call the supplied callback after the minimum transition time (the next frame).
- *
- * @param {any} callback
- */
-function nextFrame (callback) {
-  setTimeout(callback, 1000 / 30);
-};
-
 var trailingSlashRegex = /\/$/;
 
 /**
@@ -232,7 +223,6 @@ module.exports = {
   isNode: isNode,
   isEvent: isEvent,
   removeClass: removeClass,
-  nextFrame: nextFrame,
   isPath: isPath,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,

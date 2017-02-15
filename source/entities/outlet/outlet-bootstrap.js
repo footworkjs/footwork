@@ -4,12 +4,8 @@ var _ = require('footwork-lodash');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
-var util = require('../../misc/util');
-var nextFrame = util.nextFrame;
-var privateDataSymbol = util.getSymbol('footwork');
-
-var routerConfig = require('../router/router-config');
-var noComponentSelected = routerConfig.noComponentSelected;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var noComponentSelected = require('../router/router-config').noComponentSelected;
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
@@ -75,7 +71,7 @@ function outletBootstrap (instance, configParams) {
         resolvedCallbacks = [];
       }
 
-      instance[privateDataSymbol].routeOnComplete();
+      privateData.routeOnComplete();
     }
 
     var transitionTriggerTimeout;
@@ -93,9 +89,9 @@ function outletBootstrap (instance, configParams) {
         instance.loadedStyle(hiddenCSS);
         instance.loadingStyle(visibleCSS);
 
-        nextFrame(function () {
+        setTimeout(function () {
           instance.loadingClass(addAnimation());
-        });
+        }, 0);
       },
       showLoaded: function showLoaded () {
         clearTimeout(transitionTriggerTimeout);
@@ -114,15 +110,15 @@ function outletBootstrap (instance, configParams) {
           instance.routeIsResolving(true);
         } else {
           /* istanbul ignore next */
-          if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
-            instance.loadingChildrenWatch.dispose();
+          if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
+            privateData.loadingChildrenWatch.dispose();
           }
 
           // must allow binding to begin on any subcomponents/etc
-          nextFrame(function () {
-            if (instance[privateDataSymbol].loadingChildren().length) {
+          setTimeout(function () {
+            if (privateData.loadingChildren().length) {
               /* istanbul ignore next */
-              instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
+              privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
                 if (!loadingChildren.length) {
                   instance.routeIsResolving(false);
                 }
@@ -130,7 +126,7 @@ function outletBootstrap (instance, configParams) {
             } else {
               instance.routeIsResolving(false);
             }
-          });
+          }, 0);
         }
       }),
       instance.routeIsResolving.subscribe(function transitionTrigger (routeIsResolving) {
