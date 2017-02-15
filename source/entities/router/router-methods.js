@@ -47,9 +47,15 @@ module.exports = {
       };
     }
 
-    // grab and set the loading display if needed
     if (outletViewModel) {
-      outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
+      // grab and set the loading display if needed
+      if (arguments.length > 1) {
+        // user requested change, lets find out and inject what we need to display during load
+        outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
+      } else {
+        // bootup process, just show original contents during startup
+        outletViewModel.loading(outletViewModel.originalDisplay);
+      }
     }
 
     var outletHasMutated = false;
@@ -66,13 +72,14 @@ module.exports = {
       }
 
       if (outletHasMutated) {
-        clearSequenceQueue();
-
-        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
         }
+
+        clearSequenceQueue();
+
+        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
 
         currentOutletDef.getOnCompleteCallback = function (element) {
           var outletElement = element.parentNode;

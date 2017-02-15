@@ -94,6 +94,7 @@ function routerBootstrap (instance, configParams) {
           privateData.scrollToFragment = _.noop;
           if (_.isString(state) && state.indexOf('#') !== -1) {
             var fragmentIdentifier = state.split('#')[1];
+            /* istanbul ignore next */
             privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
