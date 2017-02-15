@@ -43,6 +43,7 @@ fw.bindingHandlers.$lifecycle = {
         closestOutlet[privateDataSymbol].loadingChildren.push(loadingTracker);
 
         // ensure that if the element is removed before its other resources are resolved that the loadingTracker is removed/cleared
+        /* istanbul ignore next */
         fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
           closestOutlet[privateDataSymbol].loadingChildren.remove(loadingTracker);
         });

@@ -5,6 +5,11 @@ var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
 var outletBootstrap = require('./outlet-bootstrap');
 
+var outletTools = require('./outlet-tools');
+var stringifyCSS = outletTools.stringifyCSS;
+var visibleCSS = outletTools.visibleCSS;
+var hiddenCSS = outletTools.hiddenCSS;
+
 var outletCount = 0;
 
 /**
@@ -22,9 +27,9 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
           });
         },
         template: bindingElement.open.prefix + '$lifecycle, $outlet: $componentTemplateNodes' + bindingElement.open.postfix +
-          '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
+          '<div style="' + stringifyCSS(visibleCSS) + '" class="' + routerConfig.outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
-          '<div class="' + routerConfig.outletLoadedDisplay + '" ' +
+          '<div style="' + stringifyCSS(hiddenCSS) + '" class="' + routerConfig.outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true

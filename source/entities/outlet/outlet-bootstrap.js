@@ -7,20 +7,11 @@ var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var noComponentSelected = require('../router/router-config').noComponentSelected;
 
-var visibleCSS = { 'height': '', 'overflow': '' };
-var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
-
-function addAnimation () {
-  var addAnimation = {};
-  addAnimation[fw.animationClass.animateIn] = true;
-  return addAnimation;
-}
-
-function removeAnimation () {
-  var removeAnimation = {};
-  removeAnimation[fw.animationClass.animateIn] = false;
-  return removeAnimation;
-}
+var outletTools = require('./outlet-tools');
+var visibleCSS = outletTools.visibleCSS;
+var hiddenCSS = outletTools.hiddenCSS;
+var addAnimation = outletTools.addAnimation;
+var removeAnimation = outletTools.removeAnimation;
 
 /**
  * Bootstrap an instance with outlet capabilities.
