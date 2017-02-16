@@ -8220,27 +8220,41 @@ function outletBootstrap (instance, configParams) {
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     var privateData = instance[privateDataSymbol];
+    var transitionTriggerTimeout;
+    var transitionCompleted = fw.observable(true);
+    var readyToShowLoaded = fw.observable(false);
+
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
     _.extend(privateData, {
-      addResolvedCallbackOrExecute: function (callback) {
+      addResolvedCallbackOrExecute: function addResolvedCallbackOrExecute (callback) {
         /* istanbul ignore else */
-        if (instance.routeIsResolving()) {
+        if (privateData.outletIsChanging()) {
           resolvedCallbacks.push(callback);
         } else {
           callback();
         }
-      }
+      },
+      setupTransitionTrigger: function setupTransitionTrigger () {
+        var transition = instance.display().transition;
+        if (transition) {
+          clearTimeout(transitionTriggerTimeout);
+          transitionTriggerTimeout = setTimeout(function () {
+            transitionCompleted(true);
+          }, transition);
+        } else {
+          transitionCompleted(true);
+        }
+      },
+      outletIsChanging: fw.observable()
     });
 
     var resolvedCallbacks = [];
     _.extend(instance, {
-      loading: fw.observable(noComponentSelected),
-      routeIsLoading: fw.observable(true),
-      routeIsResolving: fw.observable(true)
+      loading: fw.observable(noComponentSelected)
     });
 
-    function showLoadedAfterMinimumTransition () {
+    function showLoadedNow () {
       instance.loadingClass(removeAnimation());
       instance.loadedStyle(visibleCSS);
       instance.loadingStyle(hiddenCSS);
@@ -8253,10 +8267,8 @@ function outletBootstrap (instance, configParams) {
         resolvedCallbacks = [];
       }
 
-      privateData.routeOnComplete();
+      privateData.outletOnComplete();
     }
-
-    var transitionTriggerTimeout;
 
     _.extend(instance, {
       loadingStyle: fw.observable(),
@@ -8271,51 +8283,47 @@ function outletBootstrap (instance, configParams) {
         instance.loadedStyle(hiddenCSS);
         instance.loadingStyle(visibleCSS);
 
+        transitionCompleted(false);
+        readyToShowLoaded(false);
+
+        privateData.setupTransitionTrigger();
         setTimeout(function () {
           instance.loadingClass(addAnimation());
         }, 0);
       },
       showLoaded: function showLoaded () {
-        clearTimeout(transitionTriggerTimeout);
-        var transition = instance.display.peek().transition;
-        if (transition) {
-          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
-        } else {
-          showLoadedAfterMinimumTransition();
-        }
+        readyToShowLoaded(true);
       }
     });
 
     instance.disposeWithInstance(
-      instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
-        if (routeIsLoading) {
-          instance.routeIsResolving(true);
+      fw.computed(function evalShowLoaded () {
+        var ready = readyToShowLoaded();
+        var transitioned = transitionCompleted();
+        if (transitioned && ready) {
+          // run showLoadedNow on next tic to ensure the transition css has time to do its thing
+          setTimeout(showLoadedNow, 0);
+        }
+      }),
+      privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
+        if (outletIsChanging) {
+          instance.showLoader();
         } else {
           /* istanbul ignore next */
           if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
             privateData.loadingChildrenWatch.dispose();
           }
 
-          // must allow binding to begin on any subcomponents/etc
-          setTimeout(function () {
-            if (privateData.loadingChildren().length) {
-              /* istanbul ignore next */
-              privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
-                if (!loadingChildren.length) {
-                  instance.routeIsResolving(false);
-                }
-              });
-            } else {
-              instance.routeIsResolving(false);
-            }
-          }, 0);
-        }
-      }),
-      instance.routeIsResolving.subscribe(function transitionTrigger (routeIsResolving) {
-        if (routeIsResolving) {
-          instance.showLoader();
-        } else {
-          instance.showLoaded();
+          if (privateData.loadingChildren().length) {
+            /* istanbul ignore next */
+            privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+              if (!loadingChildren.length) {
+                instance.showLoaded();
+              }
+            });
+          } else {
+            instance.showLoaded();
+          }
         }
       })
     );
@@ -8864,6 +8872,11 @@ module.exports = {
       };
     }
 
+    if (options.display) {
+      // user specified a new display, lets find out how long the transition should take and cache that on the outlet display for lookup later
+      outlet().transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
+    }
+
     if (outletViewModel) {
       // grab and set the loading display if needed
       if (arguments.length > 1) {
@@ -8889,14 +8902,12 @@ module.exports = {
       }
 
       if (outletHasMutated) {
-        if (outletViewModel) {
-          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
-          outletViewModel.routeIsLoading(true);
-        }
-
         clearSequenceQueue();
 
-        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
+        if (outletViewModel) {
+          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
+          outletViewModel[privateDataSymbol].outletIsChanging(true);
+        }
 
         currentOutletDef.getOnCompleteCallback = function (element) {
           var outletElement = element.parentNode;
@@ -8906,13 +8917,13 @@ module.exports = {
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
-            outletViewModel.routeIsLoading(false);
-            outletViewModel[privateDataSymbol].routeOnComplete = function () {
+            outletViewModel[privateDataSymbol].outletOnComplete = function () {
               router[privateDataSymbol].scrollToFragment();
               [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
                 (onComplete || _.noop).call(router, outletElement);
               });
             };
+            outletViewModel[privateDataSymbol].outletIsChanging(false);
           };
         };
 
