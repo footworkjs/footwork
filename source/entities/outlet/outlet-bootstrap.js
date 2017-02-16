@@ -111,7 +111,7 @@ function outletBootstrap (instance, configParams) {
         var transitioned = transitionCompleted();
         if (transitioned && ready) {
           // run showLoadedNow on next tic to ensure the transition css has time to do its thing
-          setTimeout(showLoadedNow, 0);
+          setTimeout(showLoadedNow, 20);
         }
       }),
       privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
