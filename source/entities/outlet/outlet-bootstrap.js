@@ -110,15 +110,14 @@ function outletBootstrap (instance, configParams) {
         var ready = readyToShowLoaded();
         var transitioned = transitionCompleted();
         if (transitioned && ready) {
-          // run showLoadedNow on next tic to ensure the transition css has time to do its thing
-          setTimeout(showLoadedNow, 20);
+          showLoadedNow();
         }
       }),
       privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
         if (outletIsChanging) {
           instance.showLoading();
         } else {
-	  // Must wait a tic so that sub-elements have a chance to begin binding and register themselves as children
+          // wait a tic to ensure that all children begin binding prior to checking that they are all loaded (or that there are none)
           setTimeout(function () {
             if (privateData.loadingChildren().length) {
               if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
