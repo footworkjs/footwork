@@ -8311,6 +8311,7 @@ function outletBootstrap (instance, configParams) {
         } else {
           // wait a tic to ensure that all children begin binding prior to checking that they are all loaded (or that there are none)
           setTimeout(function () {
+            /* istanbul ignore if */
             if (privateData.loadingChildren().length) {
               if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
                 privateData.loadingChildrenWatch.dispose();
