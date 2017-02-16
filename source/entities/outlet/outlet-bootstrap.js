@@ -110,7 +110,8 @@ function outletBootstrap (instance, configParams) {
         var ready = readyToShowLoaded();
         var transitioned = transitionCompleted();
         if (transitioned && ready) {
-          showLoadedNow();
+          // run showLoadedNow on next tic to ensure the transition css has time to do its thing
+          setTimeout(showLoadedNow, 0);
         }
       }),
       privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
