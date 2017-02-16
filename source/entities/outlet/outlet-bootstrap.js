@@ -118,15 +118,22 @@ function outletBootstrap (instance, configParams) {
         if (outletIsChanging) {
           instance.showLoading();
         } else {
-          if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
-            privateData.loadingChildrenWatch.dispose();
-          }
+	  // Must wait a tic so that sub-elements have a chance to begin binding and register themselves as children
+          setTimeout(function () {
+            if (privateData.loadingChildren().length) {
+              if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
+                privateData.loadingChildrenWatch.dispose();
+              }
 
-          privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
-            if (!loadingChildren.length) {
+              privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+                if (!loadingChildren.length) {
+                  instance.showLoaded();
+                }
+              });
+            } else {
               instance.showLoaded();
             }
-          });
+          }, 20);
         }
       })
     );

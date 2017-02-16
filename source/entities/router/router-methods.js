@@ -84,7 +84,7 @@ module.exports = {
         clearSequenceQueue();
 
         if (outletViewModel) {
-          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
+          outletViewModel[privateDataSymbol].loadingChildren().length && outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel[privateDataSymbol].outletIsChanging(true);
         }
 
