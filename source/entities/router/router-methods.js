@@ -19,8 +19,15 @@ var noComponentSelected = require('./router-config').noComponentSelected;
 module.exports = {
   outlet: function (outletName, options) {
     if (!_.isObject(options)) {
-      options = { display: arguments.length > 1 ? options || noComponentSelected : undefined };
+      options = {
+        display: arguments.length > 1 ? options || noComponentSelected : undefined
+      };
     }
+
+    options = _.extend({
+      display: noComponentSelected,
+      params: {}
+    }, options);
 
     var router = this;
     var outlets = router[privateDataSymbol].outlets;
@@ -68,7 +75,7 @@ module.exports = {
         currentOutletDef.name = options.display;
         outletHasMutated = true;
       }
-      if (_.isObject(options.params)) {
+      if (!_.isEqual(currentOutletDef.params, options.params)) {
         currentOutletDef.params = options.params;
         outletHasMutated = true;
       }
