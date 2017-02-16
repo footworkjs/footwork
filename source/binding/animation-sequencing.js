@@ -18,6 +18,7 @@ fw.animationClass = {
 function clearSequenceQueue () {
   _.each(sequenceQueue, function (sequence, queueNamespace) {
     _.each(sequence, function (sequenceIteration) {
+      /* istanbul ignore next */
       sequenceIteration.addAnimationClass();
     });
     delete sequenceQueue[queueNamespace];

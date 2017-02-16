@@ -118,21 +118,15 @@ function outletBootstrap (instance, configParams) {
         if (outletIsChanging) {
           instance.showLoader();
         } else {
-          /* istanbul ignore next */
           if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
             privateData.loadingChildrenWatch.dispose();
           }
 
-          if (privateData.loadingChildren().length) {
-            /* istanbul ignore next */
-            privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
-              if (!loadingChildren.length) {
-                instance.showLoaded();
-              }
-            });
-          } else {
-            instance.showLoaded();
-          }
+          privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+            if (!loadingChildren.length) {
+              instance.showLoaded();
+            }
+          });
         }
       })
     );
