@@ -16,8 +16,6 @@ var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
 var noComponentSelected = require('./router-config').noComponentSelected;
 
-var activeOutlets = fw.observableArray();
-
 module.exports = {
   outlet: function (outletName, options) {
     if (!_.isObject(options)) {
@@ -85,8 +83,6 @@ module.exports = {
 
         currentOutletDef.getOnCompleteCallback = function (element) {
           var outletElement = element.parentNode;
-
-          activeOutlets.remove(outlet);
           outletElement.setAttribute('data-rendered', currentOutletDef.name);
 
           return function addBindingOnComplete () {
@@ -100,10 +96,6 @@ module.exports = {
             outletViewModel[privateDataSymbol].outletIsChanging(false);
           };
         };
-
-        if (activeOutlets().indexOf(outlet) === -1) {
-          activeOutlets.push(outlet);
-        }
 
         outlet.valueHasMutated();
       }
