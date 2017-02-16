@@ -768,7 +768,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: manipulateOutletUrl,
                 controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function(params) {
-                  this.outlet(outletName, { display: manipulateOutletComponentNamespace, params: passedInParams, onComplete: outletOnCompleteSpy });
+                  this.outlet(outletName, {
+                    display: manipulateOutletComponentNamespace,
+                    params: passedInParams,
+                    onComplete: outletOnCompleteSpy
+                  }).then(outletOnCompleteSpy);
                 }).and.callThrough()
               }, {
                 path: '/clearOutlet',
@@ -800,7 +804,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(manipulateOutletControllerSpy).toHaveBeenCalled();
 
           setTimeout(function() {
-            expect(outletOnCompleteSpy).toHaveBeenCalledTimes(2);
+            expect(outletOnCompleteSpy).toHaveBeenCalledTimes(3);
             expect($testContainer.find('outlet[name="' + outletName + '"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
             expect($testContainer.find('outlet[name="' + outletName + '"] .manipulateOutlet')).lengthToBe(1);
 
