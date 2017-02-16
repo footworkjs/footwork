@@ -1353,13 +1353,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
           setTimeout(function() {
             expect($(testContainer).find('.fw-loading-display.' + fw.animationClass.animateIn)).lengthToBe(1);
-
-            setTimeout(function() {
-              expect(outletCallbackSpy).toHaveBeenCalled();
-              expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBe(1);
-              done();
-            }, 300);
-          }, 20);
+            expect($(testContainer).find('.' + outletLoaderTestLoadingNamespace)).lengthToBe(1);
+            done();
+          }, 30);
         }, 0);
       });
 
