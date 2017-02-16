@@ -84,7 +84,7 @@ function outletBootstrap (instance, configParams) {
       loadedStyle: fw.observable(),
       loadingClass: fw.observable(),
       loadedClass: fw.observable(),
-      showLoader: function showLoader () {
+      showLoading: function showLoading () {
         var removeAnim = removeAnimation();
 
         instance.loadingClass(removeAnim);
@@ -116,7 +116,7 @@ function outletBootstrap (instance, configParams) {
       }),
       privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
         if (outletIsChanging) {
-          instance.showLoader();
+          instance.showLoading();
         } else {
           if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
             privateData.loadingChildrenWatch.dispose();
