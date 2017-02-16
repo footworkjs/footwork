@@ -8302,23 +8302,29 @@ function outletBootstrap (instance, configParams) {
         var ready = readyToShowLoaded();
         var transitioned = transitionCompleted();
         if (transitioned && ready) {
-          // run showLoadedNow on next tic to ensure the transition css has time to do its thing
-          setTimeout(showLoadedNow, 20);
+          showLoadedNow();
         }
       }),
       privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
         if (outletIsChanging) {
           instance.showLoading();
         } else {
-          if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
-            privateData.loadingChildrenWatch.dispose();
-          }
+          // wait a tic to ensure that all children begin binding prior to checking that they are all loaded (or that there are none)
+          setTimeout(function () {
+            if (privateData.loadingChildren().length) {
+              if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
+                privateData.loadingChildrenWatch.dispose();
+              }
 
-          privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
-            if (!loadingChildren.length) {
+              privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+                if (!loadingChildren.length) {
+                  instance.showLoaded();
+                }
+              });
+            } else {
               instance.showLoaded();
             }
-          });
+          }, 20);
         }
       })
     );
@@ -8905,7 +8911,7 @@ module.exports = {
         clearSequenceQueue();
 
         if (outletViewModel) {
-          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
+          outletViewModel[privateDataSymbol].loadingChildren().length && outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel[privateDataSymbol].outletIsChanging(true);
         }
 
