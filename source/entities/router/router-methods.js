@@ -46,6 +46,11 @@ module.exports = {
       };
     }
 
+    if (options.display) {
+      // user specified a new display, lets find out how long the transition should take and cache that on the outlet display for lookup later
+      outlet().transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
+    }
+
     if (outletViewModel) {
       // grab and set the loading display if needed
       if (arguments.length > 1) {
@@ -71,14 +76,12 @@ module.exports = {
       }
 
       if (outletHasMutated) {
-        if (outletViewModel) {
-          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
-          outletViewModel.routeIsLoading(true);
-        }
-
         clearSequenceQueue();
 
-        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
+        if (outletViewModel) {
+          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
+          outletViewModel[privateDataSymbol].outletIsChanging(true);
+        }
 
         currentOutletDef.getOnCompleteCallback = function (element) {
           var outletElement = element.parentNode;
@@ -88,13 +91,13 @@ module.exports = {
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
-            outletViewModel.routeIsLoading(false);
-            outletViewModel[privateDataSymbol].routeOnComplete = function () {
+            outletViewModel[privateDataSymbol].outletOnComplete = function () {
               router[privateDataSymbol].scrollToFragment();
               [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
                 (onComplete || _.noop).call(router, outletElement);
               });
             };
+            outletViewModel[privateDataSymbol].outletIsChanging(false);
           };
         };
 

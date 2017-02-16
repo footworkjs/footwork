@@ -30,7 +30,7 @@ function outletBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     var privateData = instance[privateDataSymbol];
     var transitionTriggerTimeout;
-    var transitionCompleted = fw.observable(false);
+    var transitionCompleted = fw.observable(true);
     var readyToShowLoaded = fw.observable(false);
 
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
@@ -38,7 +38,7 @@ function outletBootstrap (instance, configParams) {
     _.extend(privateData, {
       addResolvedCallbackOrExecute: function addResolvedCallbackOrExecute (callback) {
         /* istanbul ignore else */
-        if (instance.routeIsResolving()) {
+        if (privateData.outletIsChanging()) {
           resolvedCallbacks.push(callback);
         } else {
           callback();
@@ -54,14 +54,13 @@ function outletBootstrap (instance, configParams) {
         } else {
           transitionCompleted(true);
         }
-      }
+      },
+      outletIsChanging: fw.observable()
     });
 
     var resolvedCallbacks = [];
     _.extend(instance, {
-      loading: fw.observable(noComponentSelected),
-      routeIsLoading: fw.observable(true),
-      routeIsResolving: fw.observable(true)
+      loading: fw.observable(noComponentSelected)
     });
 
     function showLoadedNow () {
@@ -77,7 +76,7 @@ function outletBootstrap (instance, configParams) {
         resolvedCallbacks = [];
       }
 
-      privateData.routeOnComplete();
+      privateData.outletOnComplete();
     }
 
     _.extend(instance, {
@@ -107,42 +106,32 @@ function outletBootstrap (instance, configParams) {
     });
 
     instance.disposeWithInstance(
-      fw.computed(function () {
+      fw.computed(function evalShowLoaded () {
         var ready = readyToShowLoaded();
         var transitioned = transitionCompleted();
         if (transitioned && ready) {
           showLoadedNow();
         }
       }),
-      instance.routeIsLoading.subscribe(function routeLoadingTrigger (routeIsLoading) {
-        if (routeIsLoading) {
-          instance.routeIsResolving(true);
+      privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
+        if (outletIsChanging) {
+          instance.showLoader();
         } else {
           /* istanbul ignore next */
           if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
             privateData.loadingChildrenWatch.dispose();
           }
 
-          // must allow binding to begin on any subcomponents/etc
-          setTimeout(function () {
-            if (privateData.loadingChildren().length) {
-              /* istanbul ignore next */
-              privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
-                if (!loadingChildren.length) {
-                  instance.routeIsResolving(false);
-                }
-              });
-            } else {
-              instance.routeIsResolving(false);
-            }
-          }, 0);
-        }
-      }),
-      instance.routeIsResolving.subscribe(function transitionTrigger (routeIsResolving) {
-        if (routeIsResolving) {
-          instance.showLoader();
-        } else {
-          instance.showLoaded();
+          if (privateData.loadingChildren().length) {
+            /* istanbul ignore next */
+            privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+              if (!loadingChildren.length) {
+                instance.showLoaded();
+              }
+            });
+          } else {
+            instance.showLoaded();
+          }
         }
       })
     );

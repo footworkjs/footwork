@@ -1322,10 +1322,15 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet(outletName, { display: outletLoaderTestLoadedNamespace, transition: 75, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
-                    expect(element.tagName.toLowerCase()).toBe('outlet');
-                    expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough() });
+                  this.outlet(outletName, {
+                    display: outletLoaderTestLoadedNamespace,
+                    transition: 100,
+                    loading: outletLoaderTestLoadingNamespace,
+                    onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                      expect(element.tagName.toLowerCase()).toBe('outlet');
+                      expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                    }).and.callThrough()
+                  });
                 }).and.callThrough()
               }
             ]
@@ -1347,16 +1352,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
 
           setTimeout(function() {
-            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
-            expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBe(0);
-            expect(outletCallbackSpy).not.toHaveBeenCalled();
+            expect($(testContainer).find('.fw-loading-display.' + fw.animationClass.animateIn)).lengthToBe(1);
 
             setTimeout(function() {
-              expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBeGreaterThan(0);
               expect(outletCallbackSpy).toHaveBeenCalled();
+              expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBe(1);
               done();
-            }, 500);
-          }, 0);
+            }, 300);
+          }, 20);
         }, 0);
       });
 
