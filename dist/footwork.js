@@ -6544,6 +6544,7 @@ fw.animationClass = {
 function clearSequenceQueue () {
   _.each(sequenceQueue, function (sequence, queueNamespace) {
     _.each(sequence, function (sequenceIteration) {
+      /* istanbul ignore next */
       sequenceIteration.addAnimationClass();
     });
     delete sequenceQueue[queueNamespace];
@@ -8309,21 +8310,15 @@ function outletBootstrap (instance, configParams) {
         if (outletIsChanging) {
           instance.showLoader();
         } else {
-          /* istanbul ignore next */
           if (privateData.loadingChildrenWatch && _.isFunction(privateData.loadingChildrenWatch.dispose)) {
             privateData.loadingChildrenWatch.dispose();
           }
 
-          if (privateData.loadingChildren().length) {
-            /* istanbul ignore next */
-            privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
-              if (!loadingChildren.length) {
-                instance.showLoaded();
-              }
-            });
-          } else {
-            instance.showLoaded();
-          }
+          privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
+            if (!loadingChildren.length) {
+              instance.showLoaded();
+            }
+          });
         }
       })
     );
@@ -8842,13 +8837,18 @@ var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
 var noComponentSelected = require('./router-config').noComponentSelected;
 
-var activeOutlets = fw.observableArray();
-
 module.exports = {
   outlet: function (outletName, options) {
     if (!_.isObject(options)) {
-      options = { display: arguments.length > 1 ? options || noComponentSelected : undefined };
+      options = {
+        display: arguments.length > 1 ? options || noComponentSelected : undefined
+      };
     }
+
+    options = _.extend({
+      display: noComponentSelected,
+      params: {}
+    }, options);
 
     var router = this;
     var outlets = router[privateDataSymbol].outlets;
@@ -8896,7 +8896,7 @@ module.exports = {
         currentOutletDef.name = options.display;
         outletHasMutated = true;
       }
-      if (_.isObject(options.params)) {
+      if (!_.isEqual(currentOutletDef.params, options.params)) {
         currentOutletDef.params = options.params;
         outletHasMutated = true;
       }
@@ -8911,8 +8911,6 @@ module.exports = {
 
         currentOutletDef.getOnCompleteCallback = function (element) {
           var outletElement = element.parentNode;
-
-          activeOutlets.remove(outlet);
           outletElement.setAttribute('data-rendered', currentOutletDef.name);
 
           return function addBindingOnComplete () {
@@ -8926,10 +8924,6 @@ module.exports = {
             outletViewModel[privateDataSymbol].outletIsChanging(false);
           };
         };
-
-        if (activeOutlets().indexOf(outlet) === -1) {
-          activeOutlets.push(outlet);
-        }
 
         outlet.valueHasMutated();
       }
