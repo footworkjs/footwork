@@ -15,6 +15,7 @@ module.exports = {
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'node_modules/lodash/lodash.js', watched: false, included: false },
     { pattern: 'node_modules/requirejs-text/*.js', watched: false, included: false },
+    { pattern: 'node_modules/html5-history-api/history.js', watched: false, included: false },
     { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
     { pattern: 'node_modules/es6-promise/dist/es6-promise.*', watched: false, included: false },
     { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: false },

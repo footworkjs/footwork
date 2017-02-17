@@ -31,7 +31,7 @@ function outletBootstrap (instance, configParams) {
     var privateData = instance[privateDataSymbol];
     var transitionTriggerTimeout;
     var transitionCompleted = fw.observable(true);
-    var readyToShowLoaded = fw.observable(false);
+    var readyToShowDisplay = fw.observable(false);
 
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
@@ -63,11 +63,11 @@ function outletBootstrap (instance, configParams) {
       loading: fw.observable(noComponentSelected)
     });
 
-    function showLoadedNow () {
+    function showDisplayNow () {
       instance.loadingClass(removeAnimation());
-      instance.loadedStyle(visibleCSS);
+      instance.displayStyle(visibleCSS);
       instance.loadingStyle(hiddenCSS);
-      instance.loadedClass(addAnimation());
+      instance.displayClass(addAnimation());
 
       if (resolvedCallbacks.length) {
         _.each(resolvedCallbacks, function (callback) {
@@ -81,36 +81,36 @@ function outletBootstrap (instance, configParams) {
 
     _.extend(instance, {
       loadingStyle: fw.observable(),
-      loadedStyle: fw.observable(),
+      displayStyle: fw.observable(),
       loadingClass: fw.observable(),
-      loadedClass: fw.observable(),
+      displayClass: fw.observable(),
       showLoading: function showLoading () {
         var removeAnim = removeAnimation();
 
         instance.loadingClass(removeAnim);
-        instance.loadedClass(removeAnim);
-        instance.loadedStyle(hiddenCSS);
+        instance.displayClass(removeAnim);
+        instance.displayStyle(hiddenCSS);
         instance.loadingStyle(visibleCSS);
 
         transitionCompleted(false);
-        readyToShowLoaded(false);
+        readyToShowDisplay(false);
 
         privateData.setupTransitionTrigger();
         setTimeout(function () {
           instance.loadingClass(addAnimation());
         }, 0);
       },
-      showLoaded: function showLoaded () {
-        readyToShowLoaded(true);
+      showDisplay: function showDisplay () {
+        readyToShowDisplay(true);
       }
     });
 
     instance.disposeWithInstance(
-      fw.computed(function evalShowLoaded () {
-        var ready = readyToShowLoaded();
+      fw.computed(function evalShowDisplay () {
+        var ready = readyToShowDisplay();
         var transitioned = transitionCompleted();
         if (transitioned && ready) {
-          showLoadedNow();
+          showDisplayNow();
         }
       }),
       privateData.outletIsChanging.subscribe(function outletChangeTrigger (outletIsChanging) {
@@ -127,11 +127,11 @@ function outletBootstrap (instance, configParams) {
 
               privateData.loadingChildrenWatch = privateData.loadingChildren.subscribe(function (loadingChildren) {
                 if (!loadingChildren.length) {
-                  instance.showLoaded();
+                  instance.showDisplay();
                 }
               });
             } else {
-              instance.showLoaded();
+              instance.showDisplay();
             }
           }, 20);
         }

@@ -30,7 +30,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
           '<div style="' + stringifyCSS(visibleCSS) + '" class="' + routerConfig.outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
           '<div style="' + stringifyCSS(hiddenCSS) + '" class="' + routerConfig.outletLoadedDisplay + '" ' +
-            'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
+            'data-bind="style: displayStyle, css: displayClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true
       });

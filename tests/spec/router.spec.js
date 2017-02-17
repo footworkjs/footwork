@@ -1,4 +1,4 @@
-define(['footwork', 'lodash', 'fetch-mock'],
+define(['footwork', 'lodash', 'fetch-mock', 'history'],
   function(fw, _) {
     describe('router', function() {
       beforeEach(prepareTestEnv);

@@ -58,7 +58,8 @@ require.config({
     "es6-promise": "node_modules/es6-promise/dist/es6-promise",
     "es6promise-polyboot": "tests/assets/es6promise-polyboot",
     "fetch": "node_modules/whatwg-fetch/fetch",
-    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified"
+    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
+    "history": "node_modules/html5-history-api/history"
   },
   "shim": {
     "fetch-mock": ["es6-promise", "fetch"]
