@@ -1433,13 +1433,13 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
 
           if (testBackButton) {
             history.back();
-
             setTimeout(function () {
               expect(routeSpy).toHaveBeenCalledTimes(2);
               done();
             }, 100);
+          } else {
+            done();
           }
-
         }, ajaxWait);
       });
 
