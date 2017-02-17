@@ -1420,12 +1420,26 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
           $link2.click();
           expect(routeSpy2).toHaveBeenCalledTimes(1);
 
-          history.back();
-          setTimeout(function () {
-            expect(routeSpy).toHaveBeenCalledTimes(2);
-          }, 100);
+          var testBackButton = true;
+          var oldExploderVersion = 9;
+          if (typeof navigator !== 'undefined') {
+            var clientNavigator = navigator.userAgent.toLowerCase();
+            var exploderVersion = (clientNavigator.indexOf('msie') != -1) ? parseInt(clientNavigator.split('msie')[1]) : (oldExploderVersion + 1);
 
-          done();
+            if (exploderVersion <= oldExploderVersion) {
+              testBackButton = false;
+            }
+          }
+
+          if (testBackButton) {
+            history.back();
+
+            setTimeout(function () {
+              expect(routeSpy).toHaveBeenCalledTimes(2);
+              done();
+            }, 100);
+          }
+
         }, ajaxWait);
       });
 
