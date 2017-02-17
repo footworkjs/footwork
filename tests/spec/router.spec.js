@@ -4,8 +4,8 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
       beforeEach(prepareTestEnv);
       afterEach(cleanTestEnv);
 
-      beforeAll(function() {
-        fw.router.disableHistory = true;
+      afterAll(function() {
+        history.pushState(null, null, '/debug.html');
       });
 
       it('has the ability to create a router', function() {
@@ -1366,10 +1366,12 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
       it('can have a route bound link correctly composed with an href attribute using passed in string route', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
+        var mockUrl2 = generateUrl();
         var hashMockUrl = '#hash-only-url';
         var namespaceName = generateNamespaceName();
         var initializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
+        var routeSpy2 = jasmine.createSpy('routeSpy2');
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
@@ -1378,6 +1380,10 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
               {
                 path: mockUrl,
                 controller: routeSpy
+              },
+              {
+                path: mockUrl2,
+                controller: routeSpy2
               }
             ]
           });
@@ -1388,10 +1394,10 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
         }
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
           <a class="mockUrl" data-bind="route: \'' + mockUrl + '\'"></a>\
+          <a class="mockUrl2" data-bind="route: \'' + mockUrl2 + '\'"></a>\
           <a class="hashMockUrl" data-bind="route: \'' + hashMockUrl + '\'"></a>\
         </router>'));
 
@@ -1399,14 +1405,25 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
           expect(initializeSpy).toHaveBeenCalled();
 
           var $link = $(testContainer).find('a.mockUrl');
+          var $link2 = $(testContainer).find('a.mockUrl2');
           var $hashLink = $(testContainer).find('a.hashMockUrl');
 
           expect(routeSpy).not.toHaveBeenCalled();
+          expect(routeSpy2).not.toHaveBeenCalled();
           expect($link.attr('href')).toBe(mockUrl);
+          expect($link2.attr('href')).toBe(mockUrl2);
           expect($hashLink.attr('href')).toBe(hashMockUrl);
 
           $link.click();
           expect(routeSpy).toHaveBeenCalled();
+
+          $link2.click();
+          expect(routeSpy2).toHaveBeenCalledTimes(1);
+
+          history.back();
+          setTimeout(function () {
+            expect(routeSpy).toHaveBeenCalledTimes(2);
+          }, 100);
 
           done();
         }, ajaxWait);
