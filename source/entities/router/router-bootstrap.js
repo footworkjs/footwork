@@ -62,7 +62,6 @@ function routerBootstrap (instance, configParams) {
             instance.currentState(getLocation());
           }
 
-          /* istanbul ignore if */
           if (!fw.router.disableHistory) {
             (function setupPopStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler = function popstateEventHandler (event) {
@@ -71,7 +70,6 @@ function routerBootstrap (instance, configParams) {
             })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
           }
         } else {
-          /* istanbul ignore if */
           if (privateData.historyPopstateHandler) {
             (function removePopStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler);
@@ -95,7 +93,6 @@ function routerBootstrap (instance, configParams) {
           privateData.scrollToFragment = _.noop;
           if (_.isString(state) && state.indexOf('#') !== -1) {
             var fragmentIdentifier = state.split('#')[1];
-            /* istanbul ignore next */
             privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
@@ -106,7 +103,6 @@ function routerBootstrap (instance, configParams) {
             window.document.title = currentRoute.title;
           }
 
-          /* istanbul ignore if */
           if (privateData.alterStateMethod && !fw.router.disableHistory) {
             privateData.alterStateMethod.call(history, state, null, (currentRoute.url ? privateData.configParams.baseRoute + currentRoute.url : null));
             privateData.alterStateMethod = null;
