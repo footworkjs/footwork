@@ -8863,6 +8863,7 @@ module.exports = {
     var outlet = outletProperties.routeObservable;
     var outletViewModel = outletProperties.outletViewModel;
     var routerOutletOptions = router[privateDataSymbol].configParams.outlet || {};
+    var resolveOnCompletePromise = _.noop;
 
     if (!fw.isObservable(outlet)) {
       // router outlet observable not found, we must create a new one
@@ -8924,7 +8925,7 @@ module.exports = {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel[privateDataSymbol].outletOnComplete = function () {
               router[privateDataSymbol].scrollToFragment();
-              [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
+              [routerOutletOptions.onComplete, options.onComplete, resolveOnCompletePromise].forEach(function callOnCompleteFunctions (onComplete) {
                 (onComplete || _.noop).call(router, outletElement);
               });
             };
@@ -8936,7 +8937,13 @@ module.exports = {
       }
     }
 
-    return outlet;
+    var ret = outlet;
+    if (arguments.length > 1) {
+      ret = new Promise(function (resolve, reject) {
+        resolveOnCompletePromise = resolve;
+      });
+    }
+    return ret;
   },
   getRouteForState: function (currentState) {
     var route;
