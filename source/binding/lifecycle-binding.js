@@ -109,7 +109,9 @@ fw.bindingHandlers.$lifecycle = {
  * This is a viewModel used as a fill-in when none is provided for tracking and resolution purposes
  */
 function TrackerVM () {
-  fw.viewModel.boot(this);
+  fw.viewModel.boot(this, {
+    namespace: privateDataSymbol
+  });
 };
 
 /**
