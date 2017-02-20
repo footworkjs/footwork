@@ -44,17 +44,6 @@ function outletBootstrap (instance, configParams) {
           callback();
         }
       },
-      setupTransitionTrigger: function setupTransitionTrigger () {
-        var transition = instance.display().transition;
-        if (transition) {
-          clearTimeout(transitionTriggerTimeout);
-          transitionTriggerTimeout = setTimeout(function () {
-            transitionCompleted(true);
-          }, transition);
-        } else {
-          transitionCompleted(true);
-        }
-      },
       outletIsChanging: fw.observable()
     });
 
@@ -62,6 +51,18 @@ function outletBootstrap (instance, configParams) {
     _.extend(instance, {
       loading: fw.observable(noComponentSelected)
     });
+
+    function setupTransitionTrigger () {
+      var transition = instance.display().transition;
+      if (transition) {
+        clearTimeout(transitionTriggerTimeout);
+        transitionTriggerTimeout = setTimeout(function () {
+          transitionCompleted(true);
+        }, transition);
+      } else {
+        transitionCompleted(true);
+      }
+    }
 
     function showDisplayNow () {
       instance.loadingClass(removeAnimation());
@@ -95,7 +96,7 @@ function outletBootstrap (instance, configParams) {
         transitionCompleted(false);
         readyToShowDisplay(false);
 
-        privateData.setupTransitionTrigger();
+        setupTransitionTrigger();
         setTimeout(function () {
           instance.loadingClass(addAnimation());
         }, 0);
@@ -107,9 +108,7 @@ function outletBootstrap (instance, configParams) {
 
     instance.disposeWithInstance(
       fw.computed(function evalShowDisplay () {
-        var ready = readyToShowDisplay();
-        var transitioned = transitionCompleted();
-        if (transitioned && ready) {
+        if (transitionCompleted() && readyToShowDisplay()) {
           showDisplayNow();
         }
       }),

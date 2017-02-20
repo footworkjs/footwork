@@ -106,6 +106,13 @@ fw.bindingHandlers.$lifecycle = {
 };
 
 /**
+ * This is a viewModel used as a fill-in when none is provided for tracking and resolution purposes
+ */
+function TrackerVM () {
+  fw.viewModel.boot(this);
+};
+
+/**
  * Mark the element/tracker as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolve which
  * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
  *
@@ -130,53 +137,56 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     }
   }
 
-  if (isEntity(viewModel)) {
-    function resolveInstanceNow (promisesToWaitFor) {
-      if (_.isUndefined(promisesToWaitFor)) {
-        finishResolution();
-        return Promise.resolve();
-      } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
-        return new Promise(function (resolve) {
-          var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
-          _.each(promises, function waitForPromise (promise) {
-            promise.then(function checkAllPromises () {
-              if (_.every(promises, promiseIsFulfilled)) {
-                resolve();
-                finishResolution();
-              }
-            });
+  if (!isEntity(viewModel)) {
+    viewModel = new TrackerVM();
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+      viewModel.dispose();
+    });
+  }
+
+  function resolveInstanceNow (promisesToWaitFor) {
+    if (_.isUndefined(promisesToWaitFor)) {
+      finishResolution();
+      return Promise.resolve();
+    } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
+      return new Promise(function (resolve) {
+        var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
+        _.each(promises, function waitForPromise (promise) {
+          promise.then(function checkAllPromises () {
+            if (_.every(promises, promiseIsFulfilled)) {
+              resolve();
+              finishResolution();
+            }
           });
         });
-      } else {
-        throw Error('Can only pass promises to resolve callback');
-      }
+      });
+    } else {
+      throw Error('Can only pass promises to resolve callback');
     }
-
-    function maybeResolve () {
-      if (!viewModel[privateDataSymbol].wasResolved) {
-        viewModel[privateDataSymbol].wasResolved = true;
-        viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
-      }
-    }
-
-    /**
-     * Have to delay child check for one tick to let its children begin binding.
-     * By doing this they have a chance to add/register themselves to/with loadingChildren()
-     * before we check its length and determine if we need to wait for any children to resolve.
-     */
-    setTimeout(function () {
-      var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
-
-      // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)
-      if (loadingChildren().length === 0) {
-        maybeResolve();
-      } else {
-        viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
-          loadingChildren.length === 0 && maybeResolve();
-        }));
-      }
-    }, 0);
-  } else {
-    finishResolution();
   }
+
+  function maybeResolve () {
+    if (!viewModel[privateDataSymbol].wasResolved) {
+      viewModel[privateDataSymbol].wasResolved = true;
+      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
+    }
+  }
+
+  /**
+   * Have to delay child check for one tick to let its children begin binding.
+   * By doing this they have a chance to add/register themselves to/with loadingChildren()
+   * before we check its length and determine if we need to wait for any children to resolve.
+   */
+  setTimeout(function () {
+    var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
+
+    // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)
+    if (loadingChildren().length === 0) {
+      maybeResolve();
+    } else {
+      viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
+        loadingChildren.length === 0 && maybeResolve();
+      }));
+    }
+  }, 0);
 }
