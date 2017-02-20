@@ -6791,6 +6791,15 @@ fw.bindingHandlers.$lifecycle = {
 };
 
 /**
+ * This is a viewModel used as a fill-in when none is provided for tracking and resolution purposes
+ */
+function TrackerVM () {
+  fw.viewModel.boot(this, {
+    namespace: privateDataSymbol
+  });
+};
+
+/**
  * Mark the element/tracker as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolve which
  * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
  *
@@ -6815,55 +6824,58 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     }
   }
 
-  if (isEntity(viewModel)) {
-    function resolveInstanceNow (promisesToWaitFor) {
-      if (_.isUndefined(promisesToWaitFor)) {
-        finishResolution();
-        return Promise.resolve();
-      } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
-        return new Promise(function (resolve) {
-          var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
-          _.each(promises, function waitForPromise (promise) {
-            promise.then(function checkAllPromises () {
-              if (_.every(promises, promiseIsFulfilled)) {
-                resolve();
-                finishResolution();
-              }
-            });
+  if (!isEntity(viewModel)) {
+    viewModel = new TrackerVM();
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+      viewModel.dispose();
+    });
+  }
+
+  function resolveInstanceNow (promisesToWaitFor) {
+    if (_.isUndefined(promisesToWaitFor)) {
+      finishResolution();
+      return Promise.resolve();
+    } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
+      return new Promise(function (resolve) {
+        var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
+        _.each(promises, function waitForPromise (promise) {
+          promise.then(function checkAllPromises () {
+            if (_.every(promises, promiseIsFulfilled)) {
+              resolve();
+              finishResolution();
+            }
           });
         });
-      } else {
-        throw Error('Can only pass promises to resolve callback');
-      }
+      });
+    } else {
+      throw Error('Can only pass promises to resolve callback');
     }
-
-    function maybeResolve () {
-      if (!viewModel[privateDataSymbol].wasResolved) {
-        viewModel[privateDataSymbol].wasResolved = true;
-        viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
-      }
-    }
-
-    /**
-     * Have to delay child check for one tick to let its children begin binding.
-     * By doing this they have a chance to add/register themselves to/with loadingChildren()
-     * before we check its length and determine if we need to wait for any children to resolve.
-     */
-    setTimeout(function () {
-      var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
-
-      // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)
-      if (loadingChildren().length === 0) {
-        maybeResolve();
-      } else {
-        viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
-          loadingChildren.length === 0 && maybeResolve();
-        }));
-      }
-    }, 0);
-  } else {
-    finishResolution();
   }
+
+  function maybeResolve () {
+    if (!viewModel[privateDataSymbol].wasResolved) {
+      viewModel[privateDataSymbol].wasResolved = true;
+      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
+    }
+  }
+
+  /**
+   * Have to delay child check for one tick to let its children begin binding.
+   * By doing this they have a chance to add/register themselves to/with loadingChildren()
+   * before we check its length and determine if we need to wait for any children to resolve.
+   */
+  setTimeout(function () {
+    var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
+
+    // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)
+    if (loadingChildren().length === 0) {
+      maybeResolve();
+    } else {
+      viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
+        loadingChildren.length === 0 && maybeResolve();
+      }));
+    }
+  }, 0);
 }
 
 },{"../entities/entity-tools":26,"../entities/router/router-config":35,"../misc/ajax":42,"../misc/util":43,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
@@ -8236,17 +8248,6 @@ function outletBootstrap (instance, configParams) {
           callback();
         }
       },
-      setupTransitionTrigger: function setupTransitionTrigger () {
-        var transition = instance.display().transition;
-        if (transition) {
-          clearTimeout(transitionTriggerTimeout);
-          transitionTriggerTimeout = setTimeout(function () {
-            transitionCompleted(true);
-          }, transition);
-        } else {
-          transitionCompleted(true);
-        }
-      },
       outletIsChanging: fw.observable()
     });
 
@@ -8254,6 +8255,18 @@ function outletBootstrap (instance, configParams) {
     _.extend(instance, {
       loading: fw.observable(noComponentSelected)
     });
+
+    function setupTransitionTrigger () {
+      var transition = instance.display().transition;
+      if (transition) {
+        clearTimeout(transitionTriggerTimeout);
+        transitionTriggerTimeout = setTimeout(function () {
+          transitionCompleted(true);
+        }, transition);
+      } else {
+        transitionCompleted(true);
+      }
+    }
 
     function showDisplayNow () {
       instance.loadingClass(removeAnimation());
@@ -8287,7 +8300,7 @@ function outletBootstrap (instance, configParams) {
         transitionCompleted(false);
         readyToShowDisplay(false);
 
-        privateData.setupTransitionTrigger();
+        setupTransitionTrigger();
         setTimeout(function () {
           instance.loadingClass(addAnimation());
         }, 0);
@@ -8299,9 +8312,7 @@ function outletBootstrap (instance, configParams) {
 
     instance.disposeWithInstance(
       fw.computed(function evalShowDisplay () {
-        var ready = readyToShowDisplay();
-        var transitioned = transitionCompleted();
-        if (transitioned && ready) {
+        if (transitionCompleted() && readyToShowDisplay()) {
           showDisplayNow();
         }
       }),
@@ -9254,18 +9265,20 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
       $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 
-    // Setup the request handler which returns the instance
-    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function (namespaceName) {
-      if (_.isString(namespaceName) || _.isArray(namespaceName)) {
-        if (_.isArray(namespaceName) && _.indexOf(namespaceName, configParams.namespace) !== -1) {
-          return instance;
-        } else if (_.isString(namespaceName) && namespaceName === configParams.namespace) {
+    if (configParams.namespace !== privateDataSymbol) {
+      // Setup the request handler which returns the instance
+      instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function (namespaceName) {
+        if (_.isString(namespaceName) || _.isArray(namespaceName)) {
+          if (_.isArray(namespaceName) && _.indexOf(namespaceName, configParams.namespace) !== -1) {
+            return instance;
+          } else if (_.isString(namespaceName) && namespaceName === configParams.namespace) {
+            return instance;
+          }
+        } else {
           return instance;
         }
-      } else {
-        return instance;
-      }
-    }));
+      }));
+    }
   }
 
   return instance;
