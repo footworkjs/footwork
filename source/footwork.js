@@ -1,8 +1,10 @@
 var fw = require('knockout/build/output/knockout-latest');
+var _ = require('footwork-lodash');
 
 fw.version = {
+  footwork: 'FOOTWORK_VERSION',
   knockout: fw.version,
-  footwork: 'FOOTWORK_VERSION'
+  lodash: _.VERSION
 };
 
 require('./namespace/namespace');
