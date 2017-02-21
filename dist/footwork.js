@@ -1,7 +1,7 @@
 /**
  * footwork - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v2.0.0-beta2
+ * Version: v2.0.1
  * Url: http://footworkjs.com
  * License: MIT
  */
@@ -11,7 +11,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 fw.version = {
-  footwork: '2.0.0-beta2',
+  footwork: '2.0.1',
   knockout: fw.version,
   lodash: _.VERSION
 };
