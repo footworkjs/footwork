@@ -39,9 +39,11 @@ For more details see:
   npm install footwork --save
   ```
 
-* or you can download it directly:
+* or you can download/use it directly via CDN:
 
-  https://github.com/footworkjs/footwork/blob/2.0.0/dist
+  https://unpkg.com/footwork/dist/footwork.js
+
+  https://unpkg.com/footwork/dist/footwork.css (optional, for animations)
 
 For information on how to use FootworkJS please [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
