@@ -9,7 +9,7 @@
       "url": "https://github.com/jonbnewman"
     }
   ],
-  "version": "2.0.1",
+  "version": "2.0.2",
   "homepage": "http://footworkjs.com",
   "license": "MIT",
   "files": [
@@ -58,7 +58,7 @@
     "karma-requirejs": "^0.2.2",
     "karma-sauce-launcher": "^1.1.0",
     "karma-spec-reporter": "0.0.23",
-    "knockout": "3.4.1",
+    "knockout": "3.4.2",
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "2.0.3",
