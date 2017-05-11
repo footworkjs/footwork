@@ -3,7 +3,6 @@
 
 .animateIn > .fadeIn {
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease;
   -moz-transition: opacity 0.5s ease;
   transition: opacity 0.5s ease; }
 
@@ -19,7 +18,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -37,7 +35,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -55,7 +52,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -73,7 +69,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -91,7 +86,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -109,7 +103,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -127,7 +120,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -145,7 +137,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -263,7 +254,6 @@
   -webkit-transform: perspective(400px);
      -moz-transform: perspective(400px);
           transform: perspective(400px);
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -283,7 +273,6 @@
   -webkit-transform: perspective(400px);
      -moz-transform: perspective(400px);
           transform: perspective(400px);
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -302,7 +291,6 @@
       -ms-transform: none;
           transform: none;
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -328,7 +316,6 @@
       -ms-transform: none;
           transform: none;
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -354,7 +341,6 @@
       -ms-transform: none;
           transform: none;
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -380,7 +366,6 @@
       -ms-transform: none;
           transform: none;
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -406,7 +391,6 @@
       -ms-transform: none;
           transform: none;
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -432,7 +416,6 @@
       -ms-transform: none;
           transform: none;
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -451,7 +434,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -469,7 +451,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -487,7 +468,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -505,7 +485,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -523,7 +502,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -541,7 +519,6 @@
      -moz-transform: none;
       -ms-transform: none;
           transform: none;
-  -webkit-transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   transition: opacity 0.5s ease, -webkit-transform 0.5s ease;
   -moz-transition: opacity 0.5s ease, transform 0.5s ease, -moz-transform 0.5s ease;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -557,7 +534,6 @@
   -webkit-transform: translate3d(0, 0, 0);
      -moz-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
-  -webkit-transition: -webkit-transform 0.5s ease;
   transition: -webkit-transform 0.5s ease;
   -moz-transition: transform 0.5s ease, -moz-transform 0.5s ease;
   transition: transform 0.5s ease;
@@ -573,7 +549,6 @@
   -webkit-transform: translate3d(0, 0, 0);
      -moz-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
-  -webkit-transition: -webkit-transform 0.5s ease;
   transition: -webkit-transform 0.5s ease;
   -moz-transition: transform 0.5s ease, -moz-transform 0.5s ease;
   transition: transform 0.5s ease;
@@ -589,7 +564,6 @@
   -webkit-transform: translate3d(0, 0, 0);
      -moz-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
-  -webkit-transition: -webkit-transform 0.5s ease;
   transition: -webkit-transform 0.5s ease;
   -moz-transition: transform 0.5s ease, -moz-transform 0.5s ease;
   transition: transform 0.5s ease;
@@ -605,7 +579,6 @@
   -webkit-transform: translate3d(0, 0, 0);
      -moz-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
-  -webkit-transition: -webkit-transform 0.5s ease;
   transition: -webkit-transform 0.5s ease;
   -moz-transition: transform 0.5s ease, -moz-transform 0.5s ease;
   transition: transform 0.5s ease;

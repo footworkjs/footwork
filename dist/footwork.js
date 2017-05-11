@@ -1,7 +1,7 @@
 /**
  * footwork - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v2.0.2
+ * Version: v2.0.3
  * Url: http://footworkjs.com
  * License: MIT
  */
@@ -11,7 +11,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 fw.version = {
-  footwork: '2.0.2',
+  footwork: '2.0.3',
   knockout: fw.version,
   lodash: _.VERSION
 };
@@ -8658,7 +8658,7 @@ fw.bindingHandlers.route = {
       var routeState = routeHandlerDescription.state();
       var configParams = router[privateDataSymbol].configParams;
 
-      hashOnly = !!routeState.match(startingHashRegex);
+      hashOnly = routeState && !!routeState.match(startingHashRegex);
 
       if (element.tagName.toLowerCase() === 'a') {
         element.href = configParams.baseRoute + routeState;
