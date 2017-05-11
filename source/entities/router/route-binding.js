@@ -64,7 +64,7 @@ fw.bindingHandlers.route = {
       var routeState = routeHandlerDescription.state();
       var configParams = router[privateDataSymbol].configParams;
 
-      hashOnly = !!routeState.match(startingHashRegex);
+      hashOnly = routeState && !!routeState.match(startingHashRegex);
 
       if (element.tagName.toLowerCase() === 'a') {
         element.href = configParams.baseRoute + routeState;

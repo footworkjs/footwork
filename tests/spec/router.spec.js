@@ -1387,6 +1387,8 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
               }
             ]
           });
+
+          this.broken = function () { return undefined; };
         }).and.callThrough());
 
         function router(name) {
@@ -1399,6 +1401,7 @@ define(['footwork', 'lodash', 'fetch-mock', 'history'],
           <a class="mockUrl" data-bind="route: \'' + mockUrl + '\'"></a>\
           <a class="mockUrl2" data-bind="route: \'' + mockUrl2 + '\'"></a>\
           <a class="hashMockUrl" data-bind="route: \'' + hashMockUrl + '\'"></a>\
+          <a class="hashMockUrl" data-bind="route: broken"></a>\
         </router>'));
 
         setTimeout(function() {
